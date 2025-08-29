@@ -2,7 +2,7 @@
 // @name Modal
 // @description  Show accodrion dropdown, make linkable by updating adress bar
 //
-AcfUxCollapse = AcfUxCollapse || {};
+var AcfUxCollapse = AcfUxCollapse || {};
 AcfUxCollapse.FieldTypes = AcfUxCollapse.FieldTypes || {};
 
 AcfUxCollapse.FieldTypes.Repeater = (function ($) {
