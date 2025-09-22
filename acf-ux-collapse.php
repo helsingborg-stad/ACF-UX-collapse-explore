@@ -4,7 +4,7 @@
  * Plugin Name:       ACF UX Collapse
  * Plugin URI:        http://github.com/helsingborg-stad/ACF-UX-collapse
  * Description:       Imrpoves the ACF repeater-field UX by adding collapsing top-level functionality
- * Version: 2.0.7
+ * Version: 1.0.27
  * Author:            Kristoffer Svanmark
  * Author URI:        http://github.com/helsingborg-stad
  * License:           MIT
