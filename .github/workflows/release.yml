@@ -89,11 +89,15 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Overwrite .gitignore for release branch
+        run: |
+          echo '/*\n!/dist\n!/dist/**' > .gitignore
+
      # --- Release Branch Commit ---
       - name: Commit and push release branch
         run: |
           git config user.name "CI Release Bot"
-          git config user.email "ci@yourdomain.com"
+          git config user.email "ci@helsingborg.se"
           git checkout -B release
           git add -A
           git commit -m "Release build from $GITHUB_SHA" || echo "No changes to commit"
