@@ -94,8 +94,8 @@ jobs:
           printf "/*\n!/dist\n!/dist/**\n" > .gitignore
 
       - name: Remove everything except dist and .gitignore
-          run: |
-            find . -mindepth 1 -maxdepth 1 ! -name 'dist' ! -name '.gitignore' -exec rm -rf {} +
+        run: |
+          find . -mindepth 1 -maxdepth 1 ! -name 'dist' ! -name '.gitignore' -exec rm -rf {} +
 
      # --- Release Branch Commit ---
       - name: Commit and push release branch
