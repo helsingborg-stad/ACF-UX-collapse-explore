@@ -95,11 +95,10 @@ jobs:
 
       - name: Remove stuff not needed in release branch
         run: |
-          find . -mindepth 1 -maxdepth 1 \
+          find . -mindepth 1 -maxdepth 2 \
             ! -name 'dist' \
             ! -name '.gitignore' \
             ! -name '.git' \
-            ! -name 'build.php' \
             ! -name 'composer.json' \
             ! -name 'composer.lock' \
             ! -name 'source' \
