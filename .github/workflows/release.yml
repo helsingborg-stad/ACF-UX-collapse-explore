@@ -93,9 +93,17 @@ jobs:
         run: |
           printf "/*\n!/dist\n!/dist/**\n" > .gitignore
 
-      - name: Remove everything except dist, .gitignore, and .git
+      - name: Remove stuff not needed in release branch
         run: |
-          find . -mindepth 1 -maxdepth 1 ! -name 'dist' ! -name '.gitignore' ! -name '.git' -exec rm -rf {} +
+          find . -mindepth 1 -maxdepth 1 \
+            ! -name 'dist' \
+            ! -name '.gitignore' \
+            ! -name '.git' \
+            ! -name 'build.php' \
+            ! -name 'composer.json' \
+            ! -name 'composer.lock' \
+            -exec rm -rf {} + 
+
 
      # --- Release Branch Commit ---
       - name: Commit and push release branch
