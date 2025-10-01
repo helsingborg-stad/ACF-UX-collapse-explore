@@ -102,8 +102,14 @@ jobs:
             ! -name 'build.php' \
             ! -name 'composer.json' \
             ! -name 'composer.lock' \
-            ! -name 'source/php' \
+            ! -name 'source' \
             -exec rm -rf {} + 
+
+      - name: Remove source except php
+        run: |
+          find source -mindepth 1 -maxdepth 1 \
+          ! -name 'php' \
+          -exec rm -rf {} +
 
 
      # --- Release Branch Commit ---
