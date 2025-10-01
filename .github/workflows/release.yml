@@ -91,7 +91,7 @@ jobs:
 
       - name: Overwrite .gitignore for release branch
         run: |
-          printf "/*\n!/dist\n!/dist/**\n" > .gitignore
+          printf "/*\n!/dist\n!/dist/**\nsource/php/Vendor\n" > .gitignore
 
       - name: Remove stuff not needed in release branch
         run: |
@@ -102,6 +102,7 @@ jobs:
             ! -name 'build.php' \
             ! -name 'composer.json' \
             ! -name 'composer.lock' \
+            ! -name 'source/php' \
             -exec rm -rf {} + 
 
 
