@@ -9,6 +9,7 @@ if (php_sapi_name() !== 'cli') {
  --no-composer      Does not install vendors. Just create the autoloader.
  --cleanup          Remove removeables. 
  --install-npm      Install NPM package instead
+ --release          Keep .git, .gitignore, composer.json and package.json
 */
 
 // Any command needed to run and build plugin assets when newly cheched out of repo.
@@ -28,6 +29,7 @@ if (file_exists('composer.json')) {
 if (file_exists('package.json') && file_exists('package-lock.json')) {
     if (is_array($argv) && !in_array('--install-npm', $argv)) {
         $buildCommands[] = 'npm ci --no-progress --no-audit';
+        $buildCommands[] = 'npm run build';
     } else {
         $npmPackage = json_decode(file_get_contents('package.json'));
         $buildCommands[] = "npm install $npmPackage->name";
@@ -37,6 +39,7 @@ if (file_exists('package.json') && file_exists('package-lock.json')) {
 } elseif (file_exists('package.json') && !file_exists('package-lock.json')) {
     if (is_array($argv) && !in_array('--install-npm', $argv)) {
         $buildCommands[] = 'npm install --no-progress --no-audit';
+        $buildCommands[] = 'npm run build';
     } else {
         $npmPackage = json_decode(file_get_contents('package.json'));
         $buildCommands[] = "npm install $npmPackage->name";
@@ -47,8 +50,7 @@ if (file_exists('package.json') && file_exists('package-lock.json')) {
 
 // Files and directories not suitable for prod to be removed.
 $removables = [
-    // '.git',
-    // '.gitignore',
+    '.gitignore',
     '.github',
     '.gitattributes',
     'build.php',
@@ -58,7 +60,7 @@ $removables = [
     'env-example',
     'webpack.config.js',
     'package-lock.json',
-    //'package.json',
+    'package.json',
     'phpunit.xml.dist',
     'README.md',
     './node_modules/',
@@ -68,6 +70,10 @@ $removables = [
     'babel.config.js',
     'yarn.lock'
 ];
+
+if (is_array($argv) && !in_array('--release', $argv)) {
+    $removables = array_merge($removables, ['.git']);
+}
 
 $dirName = basename(dirname(__FILE__));
 
