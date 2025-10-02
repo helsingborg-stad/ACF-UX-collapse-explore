@@ -41,7 +41,7 @@ jobs:
           php-version: '8.2'
 
       - name: Run PHP build script
-        run: php build.php --no-composer --cleanup
+        run: php build.php --no-composer --cleanup --install-npm
 
       # - name: Remove vendor
       #   run: rm -rf vendor
