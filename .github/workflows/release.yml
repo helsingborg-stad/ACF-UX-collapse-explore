@@ -34,16 +34,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      # --- PHP Build ---
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: '8.2'
-
-      - name: Run PHP build script
-        run: php build.php --no-composer --cleanup
-
-      # --- Node/NPM Build ---
+      # --- Node/NPM
       - name: Get latest release version
         id: get-version
         run: |
@@ -54,11 +45,14 @@ jobs:
           LATEST_VERSION="${{ env.LATEST_RELEASE }}"
           jq --arg version "$LATEST_VERSION" '.version = $version' package.json > temp.json && mv temp.json package.json
 
-      - name: Setup Node
-        uses: actions/setup-node@v3
+      # --- PHP Build ---
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
         with:
-          node-version: 20
-          registry-url: 'https://npm.pkg.github.com/'
+          php-version: '8.2'
+
+      - name: Run PHP build script
+        run: php build.php --no-composer --cleanup --release
 
       - name: Overwrite .gitignore for release branch
         run: |
