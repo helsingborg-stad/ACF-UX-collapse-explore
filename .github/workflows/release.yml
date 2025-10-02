@@ -41,74 +41,74 @@ jobs:
           php-version: '8.2'
 
       - name: Run PHP build script
-        run: php build.php --no-composer 
+        run: php build.php --no-composer --cleanup
 
-      - name: Remove vendor
-        run: rm -rf vendor
+      # - name: Remove vendor
+      #   run: rm -rf vendor
 
       # --- Node/NPM Build ---
-      - name: Get latest release version
-        id: get-version
-        run: |
-          echo "LATEST_RELEASE=$(curl -s https://api.github.com/repos/${{ github.repository }}/releases/latest | jq -r '.tag_name')" >> $GITHUB_ENV
+      # - name: Get latest release version
+      #   id: get-version
+      #   run: |
+      #     echo "LATEST_RELEASE=$(curl -s https://api.github.com/repos/${{ github.repository }}/releases/latest | jq -r '.tag_name')" >> $GITHUB_ENV
 
-      - name: Update version in package.json
-        run: |
-          LATEST_VERSION="${{ env.LATEST_RELEASE }}"
-          jq --arg version "$LATEST_VERSION" '.version = $version' package.json > temp.json && mv temp.json package.json
+      # - name: Update version in package.json
+      #   run: |
+      #     LATEST_VERSION="${{ env.LATEST_RELEASE }}"
+      #     jq --arg version "$LATEST_VERSION" '.version = $version' package.json > temp.json && mv temp.json package.json
 
-      - name: Setup Node
-        uses: actions/setup-node@v3
-        with:
-          node-version: 20
-          registry-url: 'https://npm.pkg.github.com/'
+      # - name: Setup Node
+      #   uses: actions/setup-node@v3
+      #   with:
+      #     node-version: 20
+      #     registry-url: 'https://npm.pkg.github.com/'
 
-      - name: Inject access token in .npmrc
-        run: | 
-          echo "registry=https://npm.pkg.github.com/helsingborg-stad" >> ~/.npmrc
-          echo "//npm.pkg.github.com/:_authToken=${{ secrets.GITHUB_TOKEN }}" >> ~/.npmrc
+      # - name: Inject access token in .npmrc
+      #   run: | 
+      #     echo "registry=https://npm.pkg.github.com/helsingborg-stad" >> ~/.npmrc
+      #     echo "//npm.pkg.github.com/:_authToken=${{ secrets.GITHUB_TOKEN }}" >> ~/.npmrc
 
-      - name: Run CI
-        if: ${{ hashFiles('package.json') != '' && hashFiles('package-lock.json') != '' }}
-        run: npm ci --no-progress --no-audit
+      # - name: Run CI
+      #   if: ${{ hashFiles('package.json') != '' && hashFiles('package-lock.json') != '' }}
+      #   run: npm ci --no-progress --no-audit
 
-      - name: Run install
-        if: ${{ hashFiles('package.json') != '' && hashFiles('package-lock.json') == '' }}
-        run: npm install --no-progress --no-audit
+      # - name: Run install
+      #   if: ${{ hashFiles('package.json') != '' && hashFiles('package-lock.json') == '' }}
+      #   run: npm install --no-progress --no-audit
 
-      - name: Run build
-        if: ${{ hashFiles('package-lock.json') != '' && hashFiles('gulp.js') == '' }}
-        run: npx --yes browserslist@latest --update-db && npm run build
+      # - name: Run build
+      #   if: ${{ hashFiles('package-lock.json') != '' && hashFiles('gulp.js') == '' }}
+      #   run: npx --yes browserslist@latest --update-db && npm run build
 
-      - name: Run gulp
-        if: ${{ hashFiles('package-lock.json') != '' && hashFiles('gulp.js') != '' }}
-        run: gulp
+      # - name: Run gulp
+      #   if: ${{ hashFiles('package-lock.json') != '' && hashFiles('gulp.js') != '' }}
+      #   run: gulp
 
-      - name: Publish npm package to GHCR
-        run: npm publish --registry=https://npm.pkg.github.com
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # - name: Publish npm package to GHCR
+      #   run: npm publish --registry=https://npm.pkg.github.com
+      #   env:
+      #     NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Overwrite .gitignore for release branch
         run: |
           printf "/*\n!/dist\n!/dist/**\n!/source/php\n!/source/php/**\nsource/php/Vendor\n" > .gitignore
 
-      - name: Remove stuff not needed in release branch
-        run: |
-          find . -mindepth 1 -maxdepth 2 \
-            ! -name 'dist' \
-            ! -name '.gitignore' \
-            ! -name '.git' \
-            ! -name 'composer.json' \
-            ! -name 'composer.lock' \
-            ! -name 'source' \
-            -exec rm -rf {} + 
+      # - name: Remove stuff not needed in release branch
+      #   run: |
+      #     find . -mindepth 1 -maxdepth 2 \
+      #       ! -name 'dist' \
+      #       ! -name '.gitignore' \
+      #       ! -name '.git' \
+      #       ! -name 'composer.json' \
+      #       ! -name 'composer.lock' \
+      #       ! -name 'source' \
+      #       -exec rm -rf {} + 
 
-      - name: Remove source except php
-        run: |
-          find source -mindepth 1 -maxdepth 1 \
-          ! -name 'php' \
-          -exec rm -rf {} +
+      # - name: Remove source except php
+      #   run: |
+      #     find source -mindepth 1 -maxdepth 1 \
+      #     ! -name 'php' \
+      #     -exec rm -rf {} +
 
 
      # --- Release Branch Commit ---
