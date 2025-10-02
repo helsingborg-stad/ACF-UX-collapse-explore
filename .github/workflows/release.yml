@@ -41,27 +41,27 @@ jobs:
           php-version: '8.2'
 
       - name: Run PHP build script
-        run: php build.php --no-composer --cleanup --install-npm
+        run: php build.php --no-composer --cleanup
 
       # - name: Remove vendor
       #   run: rm -rf vendor
 
       # --- Node/NPM Build ---
-      # - name: Get latest release version
-      #   id: get-version
-      #   run: |
-      #     echo "LATEST_RELEASE=$(curl -s https://api.github.com/repos/${{ github.repository }}/releases/latest | jq -r '.tag_name')" >> $GITHUB_ENV
+      - name: Get latest release version
+        id: get-version
+        run: |
+          echo "LATEST_RELEASE=$(curl -s https://api.github.com/repos/${{ github.repository }}/releases/latest | jq -r '.tag_name')" >> $GITHUB_ENV
 
-      # - name: Update version in package.json
-      #   run: |
-      #     LATEST_VERSION="${{ env.LATEST_RELEASE }}"
-      #     jq --arg version "$LATEST_VERSION" '.version = $version' package.json > temp.json && mv temp.json package.json
+      - name: Update version in package.json
+        run: |
+          LATEST_VERSION="${{ env.LATEST_RELEASE }}"
+          jq --arg version "$LATEST_VERSION" '.version = $version' package.json > temp.json && mv temp.json package.json
 
-      # - name: Setup Node
-      #   uses: actions/setup-node@v3
-      #   with:
-      #     node-version: 20
-      #     registry-url: 'https://npm.pkg.github.com/'
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20
+          registry-url: 'https://npm.pkg.github.com/'
 
       # - name: Inject access token in .npmrc
       #   run: | 
@@ -83,6 +83,9 @@ jobs:
       # - name: Run gulp
       #   if: ${{ hashFiles('package-lock.json') != '' && hashFiles('gulp.js') != '' }}
       #   run: gulp
+
+      - name: Run build
+        run: npm run build
 
       # - name: Publish npm package to GHCR
       #   run: npm publish --registry=https://npm.pkg.github.com
