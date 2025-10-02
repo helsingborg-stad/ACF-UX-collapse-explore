@@ -72,7 +72,7 @@ $removables = [
 ];
 
 if (is_array($argv) && !in_array('--release', $argv)) {
-    $removables = array_merge($removables, ['.git']);
+    $removables = array_merge($removables, ['.git', './source/php/Vendor']);
 }
 
 $dirName = basename(dirname(__FILE__));
