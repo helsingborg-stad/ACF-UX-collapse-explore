@@ -17,16 +17,16 @@ $buildCommands = [];
 //Add composer build, if flag --no-composer is undefined.
 //Dump autloader. 
 //Only if composer.json exists.
-if(file_exists('composer.json')) {
-    if(is_array($argv) && !in_array('--no-composer', $argv)) {
-        $buildCommands[] = 'composer install --prefer-dist --no-progress --no-dev'; 
+if (file_exists('composer.json')) {
+    if (is_array($argv) && !in_array('--no-composer', $argv)) {
+        $buildCommands[] = 'composer install --prefer-dist --no-progress --no-dev';
     }
     $buildCommands[] = 'composer dump-autoload';
 }
 
 //Run npm if package.json is found
-if(file_exists('package.json') && file_exists('package-lock.json')) {
-    if(is_array($argv) && !in_array('--install-npm', $argv)) {
+if (file_exists('package.json') && file_exists('package-lock.json')) {
+    if (is_array($argv) && !in_array('--install-npm', $argv)) {
         $buildCommands[] = 'npm ci --no-progress --no-audit';
     } else {
         $npmPackage = json_decode(file_get_contents('package.json'));
@@ -34,8 +34,8 @@ if(file_exists('package.json') && file_exists('package-lock.json')) {
         $buildCommands[] = "rm -rf ./dist";
         $buildCommands[] = "mv node_modules/$npmPackage->name/dist ./";
     }
-} elseif(file_exists('package.json') && !file_exists('package-lock.json')) {
-    if(is_array($argv) && !in_array('--install-npm', $argv)) {
+} elseif (file_exists('package.json') && !file_exists('package-lock.json')) {
+    if (is_array($argv) && !in_array('--install-npm', $argv)) {
         $buildCommands[] = 'npm install --no-progress --no-audit';
     } else {
         $npmPackage = json_decode(file_get_contents('package.json'));
@@ -47,8 +47,8 @@ if(file_exists('package.json') && file_exists('package-lock.json')) {
 
 // Files and directories not suitable for prod to be removed.
 $removables = [
-    '.git',
-    '.gitignore',
+    // '.git',
+    // '.gitignore',
     '.github',
     '.gitattributes',
     'build.php',
@@ -86,7 +86,7 @@ foreach ($buildCommands as $buildCommand) {
 }
 
 // Remove files and directories if '--cleanup' argument is supplied to save local developers from disasters.
-if(is_array($argv) && in_array('--cleanup', $argv)) {
+if (is_array($argv) && in_array('--cleanup', $argv)) {
     foreach ($removables as $removable) {
         if (file_exists($removable)) {
             print "Removing $removable from $dirName\n";
@@ -118,7 +118,7 @@ function executeCommand($command)
         $liveOutput     = fread($proc, 4096);
         $completeOutput = $completeOutput . $liveOutput;
         print $liveOutput;
-        @ flush();
+        @flush();
     }
 
     pclose($proc);
