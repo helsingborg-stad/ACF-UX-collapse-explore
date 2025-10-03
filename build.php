@@ -6,10 +6,10 @@ if (php_sapi_name() !== 'cli') {
 }
 
 /* Parameters: 
- --no-composer      Does not install vendors. Just create the autoloader.
- --cleanup          Remove removeables. 
- --install-npm      Install NPM package instead
- --release          Keep .git, .gitignore, composer.json and package.json
+ --no-composer      Does not install vendors via composer
+ --cleanup          Remove removeables
+ --install-npm      Installs npm package as per package.json name field
+ --release          Does not run composer install and does not remove .git
 */
 
 // Any command needed to run and build plugin assets when newly cheched out of repo.
@@ -22,7 +22,10 @@ if (file_exists('composer.json')) {
     if (is_array($argv) && !in_array('--no-composer', $argv)) {
         $buildCommands[] = 'composer install --prefer-dist --no-progress --no-dev';
     }
-    $buildCommands[] = 'composer dump-autoload';
+
+    if (is_array($argv) && !in_array('--release', $argv)) {
+        $buildCommands[] = 'composer dump-autoload';
+    }
 }
 
 //Run npm if package.json is found
@@ -75,10 +78,6 @@ if (is_array($argv) && !in_array('--release', $argv)) {
     $removables = array_merge($removables, ['.git']);
 }
 
-if (is_array($argv) && in_array('--release', $argv)) {
-    $removables = array_merge($removables, ['./source/php/Vendor']);
-}
-
 $dirName = basename(dirname(__FILE__));
 
 // Run all build commands.
@@ -89,7 +88,7 @@ foreach ($buildCommands as $buildCommand) {
     $timeStart = microtime(true);
     $exitCode = executeCommand($buildCommand);
     $buildTime = round(microtime(true) - $timeStart);
-    print "---- Done build command '$buildCommand' for $dirName.  Build time: $buildTime seconds. ----\n";
+    print "---- Done build command '$buildCommand' for $dirName.  Build time: $buildTime seconds. ----\n\n";
     if ($exitCode > 0) {
         exit($exitCode);
     }
