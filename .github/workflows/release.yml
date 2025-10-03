@@ -54,6 +54,10 @@ jobs:
       - name: Run PHP build script
         run: php build.php --no-composer --cleanup --release
 
+      - name: Overwrite .gitignore for release branch
+        run: |
+          printf "/*\n!/dist\n!/dist/**\n!/source/php\n!/source/php/**\n" > .gitignore
+
       # --- Release Branch Commit ---
       - name: Commit and push release branch
         run: |
