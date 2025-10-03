@@ -22,7 +22,7 @@ jobs:
           node-version: 20.6.0
 
   build-assets:
-    needs: ['release']
+    needs: ["release"]
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -34,7 +34,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      # --- Node/NPM
+      # -- Get Latest Release Version ---
       - name: Get latest release version
         id: get-version
         run: |
@@ -43,22 +43,18 @@ jobs:
       - name: Update version in package.json
         run: |
           LATEST_VERSION="${{ env.LATEST_RELEASE }}"
-          jq --arg version "$LATEST_VERSION" '.version = $version' package.json > temp.json && mv temp.json package.json
+          echo "$(jq --arg version "$LATEST_VERSION" '.version = $version' package.json)" > package.json
 
       # --- PHP Build ---
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.2'
+          php-version: "8.2"
 
       - name: Run PHP build script
         run: php build.php --no-composer --cleanup --release
 
-      - name: Overwrite .gitignore for release branch
-        run: |
-          printf "/*\n!/dist\n!/dist/**\n!/source/php\n!/source/php/**\nsource/php/Vendor\n" > .gitignore
-
-     # --- Release Branch Commit ---
+      # --- Release Branch Commit ---
       - name: Commit and push release branch
         run: |
           git config user.name "CI Release Bot"
