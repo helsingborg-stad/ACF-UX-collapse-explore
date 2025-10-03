@@ -23,9 +23,7 @@ if (file_exists('composer.json')) {
         $buildCommands[] = 'composer install --prefer-dist --no-progress --no-dev';
     }
 
-    if (is_array($argv) && !in_array('--release', $argv)) {
-        $buildCommands[] = 'composer dump-autoload';
-    }
+    $buildCommands[] = 'composer dump-autoload';
 }
 
 //Run npm if package.json is found
