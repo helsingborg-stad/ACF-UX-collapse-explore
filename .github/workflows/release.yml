@@ -86,7 +86,7 @@ jobs:
 
       # --- Upload zip to GitHub Release (permanent) ---
       - name: Upload release zip to GitHub Release
-        uses: helsingborg-stad/upload-artifact@v1
+        uses: helsingborg-stad/upload-artifact@main
         with:
           artifact: artifacts/${{ env.LATEST_RELEASE }}.zip
           artifact_mime_type: application/zip
