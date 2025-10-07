@@ -67,3 +67,29 @@ jobs:
           git add -A
           git commit -m "Release build from $GITHUB_SHA" || echo "No changes to commit"
           git push origin release --force
+      
+      # --- Create zip file of release contents ---
+      - name: Create release zip
+        run: |
+          mkdir -p artifacts
+          git archive \
+            --format=zip \
+            --output=artifacts/release.zip \
+            HEAD
+
+      # --- Upload zip to workflow artifacts (temporary) ---
+      - name: Upload workflow artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-zip
+          path: artifacts/*.zip
+
+      # --- Upload zip to GitHub Release (permanent) ---
+      - name: Upload release zip to GitHub Release
+        uses: helsingborg-stad/upload-artifact@v1
+        with:
+          artifact: artifacts/${{ env.LATEST_RELEASE }}.zip
+          artifact_mime_type: application/zip
+          repo: ${{ github.repository }}
+          release: ${{ env.LATEST_RELEASE }}
+          gh_token: ${{ secrets.GITHUB_TOKEN }}
