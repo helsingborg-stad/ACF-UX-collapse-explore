@@ -8,22 +8,6 @@ on:
 jobs:
   release:
     runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
-
-      - name: Create Release and bump version files
-        uses: helsingborg-stad/release-wp-plugin-action@1.0.3
-        with:
-          php-version: 8.2
-          node-version: 20.6.0
-
-  build-assets:
-    needs: ["release"]
-    runs-on: ubuntu-latest
     permissions:
       contents: write
       packages: write
@@ -34,11 +18,25 @@ jobs:
         with:
           fetch-depth: 0
 
-      # -- Get Latest Release Version ---
-      - name: Get latest release version
-        id: get-version
+      - name: Bump version files (no release yet)
+        uses: helsingborg-stad/release-wp-plugin-action@1.0.3
+        with:
+          php-version: 8.2
+          node-version: 20.6.0
+          skip-release: true  # custom flag you added
+
+      - name: Pull latest main with bumped version
         run: |
-          echo "LATEST_RELEASE=$(curl -s https://api.github.com/repos/${{ github.repository }}/releases/latest | jq -r '.tag_name')" >> $GITHUB_ENV
+          git fetch origin main
+          git checkout main
+          git pull origin main
+
+      - name: Extract version
+        id: version
+        run: |
+          VERSION=$(jq -r '.version' package.json)
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Detected version: $VERSION"
 
       - name: Update version in package.json
         run: |
@@ -67,29 +65,21 @@ jobs:
           git add -A
           git commit -m "Release build from $GITHUB_SHA" || echo "No changes to commit"
           git push origin release --force
-      
-      # --- Create zip file of release contents ---
-      - name: Create release zip
+
+      # --- Tag and create GitHub Release on release branch ---
+      - name: Create and push tag
         run: |
-          mkdir -p artifacts
-          git archive \
-            --format=zip \
-            --output=artifacts/${{ env.LATEST_RELEASE }}.zip \
-            HEAD
+          TAG="v${{ steps.version.outputs.version }}"
+          # skip if tag already exists
+          if git ls-remote --tags origin | grep -q "refs/tags/$TAG$"; then
+            echo "Tag $TAG already exists, skipping tag creation."
+            exit 0
+          fi
+          git tag "$TAG"
+          git push origin "$TAG"
 
-      # --- Upload zip to workflow artifacts (temporary) ---
-      - name: Upload workflow artifact
-        uses: actions/upload-artifact@v4
+      - name: Create GitHub Release
+        uses: ncipollo/release-action@v1
         with:
-          name: release-zip
-          path: artifacts/*.zip
-
-      # --- Upload zip to GitHub Release (permanent) ---
-      - name: Upload release zip to GitHub Release
-        uses: helsingborg-stad/upload-artifact@main
-        with:
-          artifact: artifacts/${{ env.LATEST_RELEASE }}.zip
-          artifact_mime_type: application/zip
-          repo: ${{ github.repository }}
-          release: ${{ env.LATEST_RELEASE }}
-          gh_token: ${{ secrets.GITHUB_TOKEN }}
+          tag: ${{ steps.version.outputs.version }}
+          generateReleaseNotes: true
