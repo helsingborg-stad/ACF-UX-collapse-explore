@@ -38,11 +38,6 @@ jobs:
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "Detected version: $VERSION"
 
-      - name: Update version in package.json
-        run: |
-          LATEST_VERSION="${{ env.LATEST_RELEASE }}"
-          echo "$(jq --arg version "$LATEST_VERSION" '.version = $version' package.json)" > package.json
-
       # --- PHP Build ---
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
@@ -69,7 +64,7 @@ jobs:
       # --- Tag and create GitHub Release on release branch ---
       - name: Create and push tag
         run: |
-          TAG="v${{ steps.version.outputs.version }}"
+          TAG="${{ steps.version.outputs.version }}"
           # skip if tag already exists
           if git ls-remote --tags origin | grep -q "refs/tags/$TAG$"; then
             echo "Tag $TAG already exists, skipping tag creation."
@@ -77,6 +72,9 @@ jobs:
           fi
           git tag "$TAG"
           git push origin "$TAG"
+
+      - name: Wait for tag propagation
+        run: sleep 5
 
       - name: Create GitHub Release
         uses: ncipollo/release-action@v1
