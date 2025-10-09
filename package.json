@@ -1,6 +1,6 @@
 {
     "name": "@helsingborg-stad/advanced-custom-fields-collapser-explore",
-    "version": "1.0.54",
+    "version": "1.0.56",
     "description": "Collapses mega-fieldgroups to make drag and drop sorting more accesible.",
     "main": "",
     "scripts": {
